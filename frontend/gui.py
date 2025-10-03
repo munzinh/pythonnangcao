@@ -7,6 +7,10 @@ với Treeview để hiển thị danh sách công việc và các điều khi�
 
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from frontend.api_client import APIClient
 from datetime import datetime
 
