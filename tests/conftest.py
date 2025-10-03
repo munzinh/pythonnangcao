@@ -12,7 +12,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from backend.app import create_app
-from backend.database import Base, engine, init_db
+from backend.database import Base, init_db
+import backend.database as db
 
 
 @pytest.fixture(scope='session')
@@ -26,13 +27,13 @@ def app():
     test_app = create_app('testing')
     
     with test_app.app_context():
-        init_db(test_app)
-        Base.metadata.create_all(bind=engine)
+        test_engine, _ = init_db(test_app)
+        Base.metadata.create_all(bind=test_engine)
     
     yield test_app
     
     with test_app.app_context():
-        Base.metadata.drop_all(bind=engine)
+        Base.metadata.drop_all(bind=db.engine)
 
 
 @pytest.fixture(scope='function')
@@ -58,10 +59,10 @@ def init_database(app):
         app: Flask test application
     """
     with app.app_context():
-        Base.metadata.drop_all(bind=engine)
-        Base.metadata.create_all(bind=engine)
+        Base.metadata.drop_all(bind=db.engine)
+        Base.metadata.create_all(bind=db.engine)
     
     yield
     
     with app.app_context():
-        Base.metadata.drop_all(bind=engine)
+        Base.metadata.drop_all(bind=db.engine)
