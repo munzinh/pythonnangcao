@@ -27,11 +27,11 @@ class Task(Base):
     __tablename__ = 'tasks'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(200), nullable=False)
+    title = Column(String(200), nullable=False, index=True)
     description = Column(Text, nullable=True)
-    completed = Column(Boolean, default=False, nullable=False)
-    priority = Column(String(20), default='Medium')
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    completed = Column(Boolean, default=False, nullable=False, index=True)
+    priority = Column(String(20), default='Medium', index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     def to_dict(self):
@@ -41,14 +41,18 @@ class Task(Base):
         Returns:
             dict: Task data as dictionary
         """
+        # Tối ưu: chỉ format datetime khi cần
+        created_at = self.created_at.isoformat() if self.created_at else None
+        updated_at = self.updated_at.isoformat() if self.updated_at else None
+        
         return {
             'id': self.id,
             'title': self.title,
             'description': self.description,
             'completed': self.completed,
             'priority': self.priority,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': created_at,
+            'updated_at': updated_at
         }
     
     def __repr__(self):

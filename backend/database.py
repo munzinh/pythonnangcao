@@ -39,8 +39,12 @@ def init_db(app=None):
             
         engine = create_engine(
             database_uri,
-            echo=True,
-            pool_pre_ping=True
+            echo=False,  # Tắt SQL logging để tăng tốc
+            pool_pre_ping=True,
+            pool_size=10,  # Tăng connection pool
+            max_overflow=20,  # Tăng overflow connections
+            pool_recycle=3600,  # Recycle connections sau 1 giờ
+            pool_timeout=30  # Timeout cho connection pool
         )
         
         SessionLocal = scoped_session(

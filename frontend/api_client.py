@@ -8,6 +8,8 @@ error handling and response parsing.
 import requests
 import os
 from typing import Optional, Dict, List
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 class APIClient:
@@ -26,6 +28,25 @@ class APIClient:
             base_url (str, optional): API base URL, defaults to localhost:5000
         """
         self.base_url = base_url or os.getenv('API_BASE_URL', 'http://localhost:5000')
+        
+        # Tối ưu: Tạo session với connection pooling
+        self.session = requests.Session()
+        
+        # Cấu hình retry strategy
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=0.1,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=10,
+            pool_maxsize=20
+        )
+        
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
     
     def _handle_response(self, response: requests.Response) -> Dict:
         """
@@ -66,7 +87,7 @@ class APIClient:
             if completed is not None:
                 params['completed'] = str(completed).lower()
             
-            response = requests.get(
+            response = self.session.get(
                 f"{self.base_url}/api/tasks",
                 params=params,
                 timeout=5
@@ -96,7 +117,7 @@ class APIClient:
             Exception: For API errors
         """
         try:
-            response = requests.post(
+            response = self.session.post(
                 f"{self.base_url}/api/tasks",
                 json={
                     'title': title,
@@ -125,7 +146,7 @@ class APIClient:
             Exception: For API errors
         """
         try:
-            response = requests.put(
+            response = self.session.put(
                 f"{self.base_url}/api/tasks/{task_id}",
                 json=kwargs,
                 timeout=5
@@ -149,7 +170,7 @@ class APIClient:
             Exception: For API errors
         """
         try:
-            response = requests.delete(
+            response = self.session.delete(
                 f"{self.base_url}/api/tasks/{task_id}",
                 timeout=5
             )
@@ -172,7 +193,7 @@ class APIClient:
             Exception: For API errors
         """
         try:
-            response = requests.get(
+            response = self.session.get(
                 f"{self.base_url}/api/tasks/search",
                 params={'q': query},
                 timeout=5
@@ -196,7 +217,7 @@ class APIClient:
             Exception: For API or file errors
         """
         try:
-            response = requests.get(
+            response = self.session.get(
                 f"{self.base_url}/api/tasks/export/csv",
                 timeout=10
             )
@@ -224,7 +245,7 @@ class APIClient:
             Exception: For API or file errors
         """
         try:
-            response = requests.get(
+            response = self.session.get(
                 f"{self.base_url}/api/tasks/export/json",
                 timeout=10
             )

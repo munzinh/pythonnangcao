@@ -247,7 +247,10 @@ def export_csv():
         tasks = TaskManager.get_all_tasks()
         
         filename = f'tasks_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
-        filepath = os.path.join('/tmp', filename)
+        # Tạo thư mục temp nếu chưa có
+        temp_dir = os.path.join(os.getcwd(), 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        filepath = os.path.join(temp_dir, filename)
         
         with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
             if tasks:
@@ -256,12 +259,20 @@ def export_csv():
                 writer.writeheader()
                 writer.writerows(tasks)
         
-        return send_file(
+        # Gửi file và xóa sau khi gửi
+        def remove_file(response):
+            try:
+                os.remove(filepath)
+            except:
+                pass
+            return response
+        
+        return remove_file(send_file(
             filepath,
             mimetype='text/csv',
             as_attachment=True,
             download_name=filename
-        )
+        ))
     except Exception as e:
         return jsonify({
             'success': False,
@@ -281,7 +292,10 @@ def export_json():
         tasks = TaskManager.get_all_tasks()
         
         filename = f'tasks_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-        filepath = os.path.join('/tmp', filename)
+        # Tạo thư mục temp nếu chưa có
+        temp_dir = os.path.join(os.getcwd(), 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        filepath = os.path.join(temp_dir, filename)
         
         with open(filepath, 'w', encoding='utf-8') as jsonfile:
             json.dump({
@@ -290,12 +304,20 @@ def export_json():
                 'tasks': tasks
             }, jsonfile, indent=2, ensure_ascii=False)
         
-        return send_file(
+        # Gửi file và xóa sau khi gửi
+        def remove_file(response):
+            try:
+                os.remove(filepath)
+            except:
+                pass
+            return response
+        
+        return remove_file(send_file(
             filepath,
             mimetype='application/json',
             as_attachment=True,
             download_name=filename
-        )
+        ))
     except Exception as e:
         return jsonify({
             'success': False,

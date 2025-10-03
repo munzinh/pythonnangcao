@@ -6,8 +6,13 @@ registers blueprints, and runs the development server.
 """
 
 import os
+import sys
 from flask import Flask, jsonify
 from flask_cors import CORS
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from backend.config import config_by_name
 from backend.database import init_db
 from backend.routes import api_bp
