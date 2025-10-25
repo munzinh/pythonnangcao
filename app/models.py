@@ -6,11 +6,10 @@ Implements OOP principles with proper encapsulation and abstraction.
 """
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
-from backend.database import Base, get_session, close_session
+from app.extensions import db
 
 
-class Task(Base):
+class Task(db.Model):
     """
     Task model representing a to-do item.
     
@@ -26,13 +25,13 @@ class Task(Base):
     
     __tablename__ = 'tasks'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String(200), nullable=False, index=True)
-    description = Column(Text, nullable=True)
-    completed = Column(Boolean, default=False, nullable=False, index=True)
-    priority = Column(String(20), default='Medium', index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(200), nullable=False, index=True)
+    description = db.Column(db.Text, nullable=True)
+    completed = db.Column(db.Boolean, default=False, nullable=False, index=True)
+    priority = db.Column(db.String(20), default='Medium', index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     def to_dict(self):
         """
@@ -41,7 +40,7 @@ class Task(Base):
         Returns:
             dict: Task data as dictionary
         """
-        # Tối ưu: chỉ format datetime khi cần
+        # Optimize: only format datetime when needed
         created_at = self.created_at.isoformat() if self.created_at else None
         updated_at = self.updated_at.isoformat() if self.updated_at else None
         
@@ -88,23 +87,19 @@ class TaskManager:
         if not title or not title.strip():
             raise ValueError("Task title cannot be empty")
         
-        session = get_session()
         try:
             task = Task(
                 title=title.strip(),
                 description=description.strip() if description else None,
                 priority=priority
             )
-            session.add(task)
-            session.commit()
-            session.refresh(task)
+            db.session.add(task)
+            db.session.commit()
             return task.to_dict()
         except Exception as e:
-            session.rollback()
+            db.session.rollback()
             print(f"Error creating task: {str(e)}")
             raise
-        finally:
-            close_session(session)
     
     @staticmethod
     def get_all_tasks(completed=None):
@@ -117,9 +112,8 @@ class TaskManager:
         Returns:
             list: List of task dictionaries
         """
-        session = get_session()
         try:
-            query = session.query(Task)
+            query = Task.query
             if completed is not None:
                 query = query.filter(Task.completed == completed)
             tasks = query.order_by(Task.created_at.desc()).all()
@@ -127,8 +121,6 @@ class TaskManager:
         except Exception as e:
             print(f"Error getting tasks: {str(e)}")
             return []
-        finally:
-            close_session(session)
     
     @staticmethod
     def get_task_by_id(task_id):
@@ -141,15 +133,12 @@ class TaskManager:
         Returns:
             dict: Task data or None if not found
         """
-        session = get_session()
         try:
-            task = session.query(Task).filter(Task.id == task_id).first()
+            task = Task.query.filter(Task.id == task_id).first()
             return task.to_dict() if task else None
         except Exception as e:
             print(f"Error getting task: {str(e)}")
             return None
-        finally:
-            close_session(session)
     
     @staticmethod
     def update_task(task_id, **kwargs):
@@ -167,9 +156,8 @@ class TaskManager:
             ValueError: If invalid data provided
             Exception: For database errors
         """
-        session = get_session()
         try:
-            task = session.query(Task).filter(Task.id == task_id).first()
+            task = Task.query.filter(Task.id == task_id).first()
             if not task:
                 return None
             
@@ -188,15 +176,12 @@ class TaskManager:
                 task.priority = kwargs['priority']
             
             task.updated_at = datetime.utcnow()
-            session.commit()
-            session.refresh(task)
+            db.session.commit()
             return task.to_dict()
         except Exception as e:
-            session.rollback()
+            db.session.rollback()
             print(f"Error updating task: {str(e)}")
             raise
-        finally:
-            close_session(session)
     
     @staticmethod
     def delete_task(task_id):
@@ -212,21 +197,18 @@ class TaskManager:
         Raises:
             Exception: For database errors
         """
-        session = get_session()
         try:
-            task = session.query(Task).filter(Task.id == task_id).first()
+            task = Task.query.filter(Task.id == task_id).first()
             if not task:
                 return False
             
-            session.delete(task)
-            session.commit()
+            db.session.delete(task)
+            db.session.commit()
             return True
         except Exception as e:
-            session.rollback()
+            db.session.rollback()
             print(f"Error deleting task: {str(e)}")
             raise
-        finally:
-            close_session(session)
     
     @staticmethod
     def search_tasks(query):
@@ -239,10 +221,9 @@ class TaskManager:
         Returns:
             list: List of matching task dictionaries
         """
-        session = get_session()
         try:
             search_pattern = f"%{query}%"
-            tasks = session.query(Task).filter(
+            tasks = Task.query.filter(
                 (Task.title.like(search_pattern)) | 
                 (Task.description.like(search_pattern))
             ).order_by(Task.created_at.desc()).all()
@@ -250,5 +231,3 @@ class TaskManager:
         except Exception as e:
             print(f"Error searching tasks: {str(e)}")
             return []
-        finally:
-            close_session(session)

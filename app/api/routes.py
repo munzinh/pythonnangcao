@@ -8,14 +8,13 @@ and JSON response formatting.
 import csv
 import json
 import os
-from flask import Blueprint, request, jsonify, send_file
-from backend.models import TaskManager
+from flask import request, jsonify, send_file
+from app.api import bp
+from app.models import TaskManager
 from datetime import datetime
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
 
-
-@api_bp.route('/tasks', methods=['GET'])
+@bp.route('/tasks', methods=['GET'])
 def get_tasks():
     """
     Get all tasks with optional filtering.
@@ -44,7 +43,7 @@ def get_tasks():
         }), 500
 
 
-@api_bp.route('/tasks/<int:task_id>', methods=['GET'])
+@bp.route('/tasks/<int:task_id>', methods=['GET'])
 def get_task(task_id):
     """
     Get a specific task by ID.
@@ -74,7 +73,7 @@ def get_task(task_id):
         }), 500
 
 
-@api_bp.route('/tasks', methods=['POST'])
+@bp.route('/tasks', methods=['POST'])
 def create_task():
     """
     Create a new task.
@@ -119,7 +118,7 @@ def create_task():
         }), 500
 
 
-@api_bp.route('/tasks/<int:task_id>', methods=['PUT'])
+@bp.route('/tasks/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
     """
     Update a task.
@@ -170,7 +169,7 @@ def update_task(task_id):
         }), 500
 
 
-@api_bp.route('/tasks/<int:task_id>', methods=['DELETE'])
+@bp.route('/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     """
     Delete a task.
@@ -201,7 +200,7 @@ def delete_task(task_id):
         }), 500
 
 
-@api_bp.route('/tasks/search', methods=['GET'])
+@bp.route('/tasks/search', methods=['GET'])
 def search_tasks():
     """
     Search tasks by title or description.
@@ -235,7 +234,7 @@ def search_tasks():
         }), 500
 
 
-@api_bp.route('/tasks/export/csv', methods=['GET'])
+@bp.route('/tasks/export/csv', methods=['GET'])
 def export_csv():
     """
     Export all tasks to CSV file.
@@ -247,7 +246,7 @@ def export_csv():
         tasks = TaskManager.get_all_tasks()
         
         filename = f'tasks_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
-        # Tạo thư mục temp nếu chưa có
+        # Create temp directory if it doesn't exist
         temp_dir = os.path.join(os.getcwd(), 'temp')
         os.makedirs(temp_dir, exist_ok=True)
         filepath = os.path.join(temp_dir, filename)
@@ -259,7 +258,7 @@ def export_csv():
                 writer.writeheader()
                 writer.writerows(tasks)
         
-        # Gửi file và xóa sau khi gửi
+        # Send file and delete after sending
         def remove_file(response):
             try:
                 os.remove(filepath)
@@ -280,7 +279,7 @@ def export_csv():
         }), 500
 
 
-@api_bp.route('/tasks/export/json', methods=['GET'])
+@bp.route('/tasks/export/json', methods=['GET'])
 def export_json():
     """
     Export all tasks to JSON file.
@@ -292,7 +291,7 @@ def export_json():
         tasks = TaskManager.get_all_tasks()
         
         filename = f'tasks_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-        # Tạo thư mục temp nếu chưa có
+        # Create temp directory if it doesn't exist
         temp_dir = os.path.join(os.getcwd(), 'temp')
         os.makedirs(temp_dir, exist_ok=True)
         filepath = os.path.join(temp_dir, filename)
@@ -304,7 +303,7 @@ def export_json():
                 'tasks': tasks
             }, jsonfile, indent=2, ensure_ascii=False)
         
-        # Gửi file và xóa sau khi gửi
+        # Send file and delete after sending
         def remove_file(response):
             try:
                 os.remove(filepath)
@@ -325,7 +324,7 @@ def export_json():
         }), 500
 
 
-@api_bp.errorhandler(404)
+@bp.errorhandler(404)
 def not_found(error):
     """Handle 404 errors."""
     return jsonify({
@@ -334,7 +333,7 @@ def not_found(error):
     }), 404
 
 
-@api_bp.errorhandler(500)
+@bp.errorhandler(500)
 def internal_error(error):
     """Handle 500 errors."""
     return jsonify({
