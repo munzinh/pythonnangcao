@@ -1,21 +1,18 @@
+<!-- Template nền cho tất cả trang web, kế thừa cho các template con -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TaskMaster - Todo List Manager{% endblock %}</title>
-    
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap & custom style -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
-    
     {% block head %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- Navbar: logo, menu -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
@@ -36,23 +33,21 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Phần nội dung chính mỗi trang sẽ nằm ở block content, được render theo trang con -->
     <main class="container my-4">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
+    <!-- Footer: chuyên nghiệp và có thể chỉnh sinh viên/bản quyền -->
     <footer class="bg-light text-center text-muted py-3 mt-5">
         <div class="container">
-            <p class="mb-0">&copy; 2024 TaskMaster. Built with Flask and Bootstrap.</p>
+            <p class="mb-0">&copy; Đồ án môn học Lập trình python nâng cao - 2274802010533 Nguyễn Ngọc Bảo Minh.</p>
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
+    <!-- Bootstrap script + js của bạn -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
     {% block scripts %}{% endblock %}
 </body>
 </html>

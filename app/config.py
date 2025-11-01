@@ -1,64 +1,37 @@
 """
-Configuration module for Flask application.
-
-This module handles application configuration including database settings,
-secret keys, and environment-specific configurations.
+File cấu hình chính cho Flask. Tối giản, dễ kiểm soát trong mọi môi trường.
+Sử dụng biến môi trường hoặc giá trị mặc định nếu thiếu.
 """
-
 import os
 from dotenv import load_dotenv
-
-load_dotenv()
-
+load_dotenv()  # Đọc .env nếu có
 
 class Config:
-    """
-    Base configuration class.
-    
-    Attributes:
-        SECRET_KEY (str): Secret key for Flask session
-        SQLALCHEMY_DATABASE_URI (str): Database connection string
-        SQLALCHEMY_TRACK_MODIFICATIONS (bool): Disable SQLAlchemy modification tracking
-    """
-    
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///todo.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JSON_AS_ASCII = False
-
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production') # Khoá bảo mật session
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///todo.db')   # Đường dẫn DB mặc định sqlite (dễ deploy demo)
+    SQLALCHEMY_TRACK_MODIFICATIONS = False  # Không theo dõi object, tiết kiệm tài nguyên
+    JSON_AS_ASCII = False                   # Hỗ trợ hiển thị Unicode
 
 class DevelopmentConfig(Config):
-    """Development configuration."""
     DEBUG = True
     TESTING = False
-    # Optimize performance
-    JSON_SORT_KEYS = False
-    JSONIFY_PRETTYPRINT_REGULAR = False
-
+    JSON_SORT_KEYS = False  # Để nguyên thứ tự field trả về JSON
+    JSONIFY_PRETTYPRINT_REGULAR = False  # API trả về gọn nhẹ
 
 class TestingConfig(Config):
-    """Testing configuration."""
     DEBUG = False
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URI', 'sqlite:///test_todo.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URI', 'sqlite:///test_todo.db') # DB test riêng
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
 class ProductionConfig(Config):
-    """Production configuration."""
     DEBUG = False
     TESTING = False
-    # Optimize performance for production
     JSON_SORT_KEYS = False
     JSONIFY_PRETTYPRINT_REGULAR = False
-    # Optimize database
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': 20,
-        'max_overflow': 30,
-        'pool_recycle': 3600,
-        'pool_timeout': 30
+    SQLALCHEMY_ENGINE_OPTIONS = {  # Tối ưu hoá pool kết nối DB
+        'pool_size': 20, 'max_overflow': 30, 'pool_recycle': 3600, 'pool_timeout': 30
     }
-
 
 config_by_name = {
     'development': DevelopmentConfig,

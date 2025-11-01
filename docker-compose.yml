@@ -1,0 +1,45 @@
+services:
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: taskmaster_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: taskmaster_db
+      MYSQL_USER: todo_user
+      MYSQL_PASSWORD: todo_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask Application Service
+  web:
+    build: .
+    container_name: taskmaster_web
+    restart: always
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - DATABASE_URI=mysql+pymysql://todo_user:todo_password@db:3306/taskmaster_db
+      - SECRET_KEY=your-secret-key-change-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./migrations:/app/migrations
+    command: sh -c "flask db upgrade && python run.py"
+
+volumes:
+  mysql_data:
+

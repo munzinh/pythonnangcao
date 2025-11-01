@@ -1,23 +1,20 @@
 """
-Flask Application Entry Point.
-
-This is the main entry point for the Flask application.
-It creates the app instance and runs the development server.
+File chạy chính của ứng dụng Flask (entrypoint).
+Chỉ sử dụng khi bạn muốn chạy demo/thử nghiệm trực tiếp.
 """
-
 import os
 from app import create_app
 
-# Create the Flask application
-app = create_app()
+app = create_app()  # Gọi hàm factory để sinh ra app Flask
 
 if __name__ == '__main__':
-    # Get configuration from environment
+    # Lấy thông số môi trường (nếu muốn tuỳ chỉnh khi run)
     env = os.getenv('FLASK_ENV', 'development')
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', '5000'))
-    
+
+    # In ra console thông tin server
     print("=" * 60)
     print("TaskMaster - Todo List Application")
     print("=" * 60)
@@ -39,6 +36,5 @@ if __name__ == '__main__':
     print("=" * 60)
     print("Starting server...")
     print("=" * 60)
-    
-    # Run the application
+
     app.run(host=host, port=port, debug=debug)

@@ -1,8 +1,6 @@
 /**
- * Main JavaScript for TaskMaster
- * 
- * This file contains the main JavaScript functionality for the todo list application.
- * It handles API interactions, DOM manipulation, and user interactions.
+ * JavaScript chính: xử lý tương tác client (giao diện) và gọi API
+ * Toàn bộ các function dưới đều ghi chú rõ chức năng và mục đích cho dễ thuyết trình
  */
 
 // Global variables

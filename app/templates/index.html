@@ -1,8 +1,10 @@
+{# Trang index, kế thừa từ base.html, trình bày giao diện todo #}
 {% extends "base.html" %}
 
 {% block title %}TaskMaster - Todo List Manager{% endblock %}
 
 {% block content %}
+<!-- Thanh tiêu đề dịch vụ, group button xuất file & tạo mới task -->
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -22,7 +24,7 @@
             </div>
         </div>
 
-        <!-- Search and Filter -->
+        <!-- Search & filter nhanh danh sách -->
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="input-group">
@@ -36,17 +38,15 @@
                 <div class="btn-group" role="group">
                     <input type="radio" class="btn-check" name="filter" id="filterAll" value="all" checked>
                     <label class="btn btn-outline-primary" for="filterAll">All</label>
-                    
                     <input type="radio" class="btn-check" name="filter" id="filterPending" value="false">
                     <label class="btn btn-outline-warning" for="filterPending">Pending</label>
-                    
                     <input type="radio" class="btn-check" name="filter" id="filterCompleted" value="true">
                     <label class="btn btn-outline-success" for="filterCompleted">Completed</label>
                 </div>
             </div>
         </div>
 
-        <!-- Tasks Table -->
+        <!-- Bảng danh sách task (table) -->
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
@@ -62,6 +62,7 @@
                             </tr>
                         </thead>
                         <tbody id="tasksTableBody">
+                            <!-- Row loading hoặc no data sẽ tự động thay bởi js -->
                             <tr id="loadingRow">
                                 <td colspan="6" class="text-center py-4">
                                     <div class="spinner-border text-primary" role="status">
@@ -77,7 +78,7 @@
     </div>
 </div>
 
-<!-- Task Modal -->
+<!-- Modal: Thêm/sửa task -->
 <div class="modal fade" id="taskModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -120,8 +121,7 @@
         </div>
     </div>
 </div>
-
-<!-- Delete Confirmation Modal -->
+<!-- Modal xác nhận xoá task -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
