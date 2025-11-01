@@ -138,6 +138,10 @@ temp/
 tmp/
 *.tmp
 
+# Docker
+docker-compose.override.yml
+.docker/
+
 # IDE files
 .vscode/
 .idea/

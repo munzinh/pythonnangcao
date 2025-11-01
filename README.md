@@ -2,56 +2,98 @@
 
 A modern, professional Flask web application for managing your tasks with a clean, responsive interface built with Bootstrap 5.
 
-## 🚀 Features
+## 🚀 Quick Start với Docker (Khuyến nghị)
 
-- **Modern Web Interface**: Clean, responsive design with Bootstrap 5
-- **Full CRUD Operations**: Create, read, update, and delete tasks
-- **Task Management**: Mark tasks as completed, set priorities, add descriptions
-- **Search & Filter**: Search tasks by title/description, filter by completion status
-- **Export Functionality**: Export tasks to CSV or JSON format
-- **RESTful API**: Complete API endpoints for all operations
-- **Database Support**: SQLite (default) or MySQL/PostgreSQL
-- **Professional Structure**: Organized codebase following Flask best practices
+### Yêu cầu
+- Docker Desktop (Windows/Mac) hoặc Docker Engine + Docker Compose (Linux)
+- Git
 
-## 📁 Project Structure
+### Cài đặt và chạy
 
-```
-todo_app/
-├── app/                    # Main application package
-│   ├── api/               # API blueprint (REST endpoints)
-│   │   ├── __init__.py
-│   │   └── routes.py      # API routes
-│   ├── main/              # Web frontend blueprint
-│   │   ├── __init__.py
-│   │   └── routes.py      # Web routes
-│   ├── errors/            # Error handlers
-│   │   ├── __init__.py
-│   │   └── handlers.py    # Error handling
-│   ├── static/            # Static files
-│   │   ├── css/
-│   │   │   └── main.css   # Custom styles
-│   │   └── js/
-│   │       └── main.js    # Frontend JavaScript
-│   ├── templates/         # HTML templates
-│   │   ├── base.html      # Base template
-│   │   ├── index.html     # Main page
-│   │   └── errors/        # Error pages
-│   ├── __init__.py        # Application factory
-│   ├── config.py          # Configuration
-│   ├── extensions.py      # Flask extensions
-│   └── models.py          # Database models
-├── migrations/            # Database migrations (Flask-Migrate)
-├── run.py                 # Application entry point
-├── requirements.txt      # Python dependencies
-└── README.md             # This file
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd TaskMaster
+
+# 2. Khởi động ứng dụng với Docker Compose
+docker-compose up --build
+
+# Hoặc chạy ở background
+docker-compose up -d --build
 ```
 
-## 🛠️ Installation
+### Truy cập ứng dụng
+
+Sau khi containers khởi động thành công, truy cập:
+
+- **Web Interface**: http://localhost:5001
+- **API Base**: http://localhost:5001/api/
+
+### Thông tin Database (Docker)
+
+- **Host**: localhost:3307
+- **Username**: `todo_user`
+- **Password**: `todo_password`
+- **Database**: `taskmaster_db`
+
+### Các lệnh Docker hữu ích
+
+```bash
+# Xem logs
+docker-compose logs -f web
+
+# Dừng services
+docker-compose down
+
+# Dừng và xóa volumes (mất dữ liệu database)
+docker-compose down -v
+
+# Rebuild lại image
+docker-compose build --no-cache
+
+# Truy cập vào container MySQL
+docker-compose exec db mysql -u todo_user -ptodo_password taskmaster_db
+
+# Truy cập vào container Flask
+docker-compose exec web bash
+
+# Chạy migrations thủ công (nếu cần)
+docker-compose exec web flask db upgrade
+
+# Restart services
+docker-compose restart
+```
+
+### Troubleshooting Docker
+
+**Lỗi port đã được sử dụng:**
+- Ports mặc định: Web = 5001, MySQL = 3307
+- Nếu cần đổi, sửa trong `docker-compose.yml`:
+  - Web: `"5002:5000"` (port 5002 trên máy host → 5000 trong container)
+  - MySQL: `"3308:3306"`
+
+**Reset hoàn toàn:**
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+
+**Lỗi kết nối database:**
+```bash
+# Kiểm tra MySQL container
+docker-compose ps
+docker-compose logs db
+```
+
+---
+
+## 🛠️ Cài đặt thủ công (Không dùng Docker)
 
 ### Prerequisites
 
 - Python 3.8 or higher
 - pip (Python package installer)
+- MySQL (nếu dùng MySQL thay vì SQLite)
 
 ### Step 1: Clone the Repository
 
@@ -79,7 +121,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 4: Set Environment Variables (Optional)
+### Step 4: Set Environment Variables
 
 Create a `.env` file in the project root:
 
@@ -90,18 +132,23 @@ FLASK_DEBUG=True
 SECRET_KEY=your-secret-key-here
 
 # Database Configuration
+# SQLite (default)
 DATABASE_URI=sqlite:///todo.db
-# For MySQL: DATABASE_URI=mysql+pymysql://user:password@localhost/todo_db
-# For PostgreSQL: DATABASE_URI=postgresql://user:password@localhost/todo_db
+
+# MySQL
+# DATABASE_URI=mysql+pymysql://user:password@localhost/todo_db
+
+# PostgreSQL
+# DATABASE_URI=postgresql://user:password@localhost/todo_db
 ```
 
 ### Step 5: Initialize Database
 
 ```bash
-# Initialize Flask-Migrate
+# Initialize Flask-Migrate (nếu chưa có)
 flask db init
 
-# Create initial migration
+# Create initial migration (nếu chưa có)
 flask db migrate -m "Initial migration"
 
 # Apply migration
@@ -147,7 +194,7 @@ The application will be available at:
 
 #### Create a Task
 ```bash
-curl -X POST http://localhost:5000/api/tasks \
+curl -X POST http://localhost:5001/api/tasks \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Complete project",
@@ -158,63 +205,63 @@ curl -X POST http://localhost:5000/api/tasks \
 
 #### Get All Tasks
 ```bash
-curl http://localhost:5000/api/tasks
+curl http://localhost:5001/api/tasks
 ```
 
 #### Update a Task
 ```bash
-curl -X PUT http://localhost:5000/api/tasks/1 \
+curl -X PUT http://localhost:5001/api/tasks/1 \
   -H "Content-Type: application/json" \
   -d '{
     "completed": true
   }'
 ```
 
-## 🎨 Web Interface Features
+## 🎨 Features
 
-### Main Dashboard
-- **Task List**: View all tasks in a responsive table
-- **Add Task**: Modal form for creating new tasks
-- **Edit Task**: Click edit button to modify existing tasks
-- **Toggle Status**: Mark tasks as completed/pending
-- **Delete Task**: Remove tasks with confirmation
+- **Modern Web Interface**: Clean, responsive design with Bootstrap 5
+- **Full CRUD Operations**: Create, read, update, and delete tasks
+- **Task Management**: Mark tasks as completed, set priorities, add descriptions
+- **Search & Filter**: Search tasks by title/description, filter by completion status
+- **Export Functionality**: Export tasks to CSV or JSON format
+- **RESTful API**: Complete API endpoints for all operations
+- **Database Support**: MySQL (Docker) or SQLite (manual setup)
+- **Professional Structure**: Organized codebase following Flask best practices
 
-### Search & Filter
-- **Search**: Real-time search by title or description
-- **Filter**: Filter by completion status (All, Pending, Completed)
-- **Priority**: Visual priority indicators (High, Medium, Low)
+## 📁 Project Structure
 
-### Export Options
-- **CSV Export**: Download tasks as CSV file
-- **JSON Export**: Download tasks as JSON file
-
-## 🗄️ Database Configuration
-
-### SQLite (Default)
-The application uses SQLite by default, which requires no additional setup.
-
-### MySQL
-For MySQL, install the required driver and update your configuration:
-
-```bash
-pip install PyMySQL
 ```
-
-Update your `.env` file:
-```env
-DATABASE_URI=mysql+pymysql://username:password@localhost/todo_db
-```
-
-### PostgreSQL
-For PostgreSQL, install the required driver:
-
-```bash
-pip install psycopg2-binary
-```
-
-Update your `.env` file:
-```env
-DATABASE_URI=postgresql://username:password@localhost/todo_db
+TaskMaster/
+├── app/                    # Main application package
+│   ├── api/               # API blueprint (REST endpoints)
+│   │   ├── __init__.py
+│   │   └── routes.py      # API routes
+│   ├── main/              # Web frontend blueprint
+│   │   ├── __init__.py
+│   │   └── routes.py      # Web routes
+│   ├── errors/            # Error handlers
+│   │   ├── __init__.py
+│   │   └── handlers.py    # Error handling
+│   ├── static/            # Static files
+│   │   ├── css/
+│   │   │   └── main.css   # Custom styles
+│   │   └── js/
+│   │       └── main.js    # Frontend JavaScript
+│   ├── templates/         # HTML templates
+│   │   ├── base.html      # Base template
+│   │   ├── index.html     # Main page
+│   │   └── errors/        # Error pages
+│   ├── __init__.py        # Application factory
+│   ├── config.py          # Configuration
+│   ├── extensions.py      # Flask extensions
+│   └── models.py          # Database models
+├── migrations/            # Database migrations (Flask-Migrate)
+├── Dockerfile            # Docker image definition
+├── docker-compose.yml    # Docker Compose configuration
+├── init.sql              # MySQL initialization script
+├── run.py                # Application entry point
+├── requirements.txt      # Python dependencies
+└── README.md            # This file
 ```
 
 ## 🔧 Configuration
@@ -236,6 +283,42 @@ The application supports multiple configuration environments:
 - **Testing**: Test database, debug disabled
 - **Production**: Optimized settings, production database
 
+## 🗄️ Database Configuration
+
+### Docker (Default - Khuyến nghị)
+
+Database MySQL được cấu hình tự động trong Docker. Không cần cấu hình thêm.
+
+### MySQL (Manual Setup)
+
+For MySQL, install the required driver and update your configuration:
+
+```bash
+pip install PyMySQL
+```
+
+Update your `.env` file:
+```env
+DATABASE_URI=mysql+pymysql://username:password@localhost/todo_db
+```
+
+### SQLite (Manual Setup)
+
+The application uses SQLite by default when not using Docker, which requires no additional setup.
+
+### PostgreSQL (Manual Setup)
+
+For PostgreSQL, install the required driver:
+
+```bash
+pip install psycopg2-binary
+```
+
+Update your `.env` file:
+```env
+DATABASE_URI=postgresql://username:password@localhost/todo_db
+```
+
 ## 🧪 Testing
 
 Run the test suite:
@@ -253,7 +336,17 @@ pytest tests/test_api.py
 
 ## 📦 Deployment
 
-### Production Deployment
+### Docker Deployment (Production)
+
+```bash
+# Build production image
+docker-compose -f docker-compose.yml build
+
+# Run in production mode
+docker-compose up -d
+```
+
+### Manual Production Deployment
 
 1. **Set Environment Variables**:
    ```bash
@@ -271,23 +364,6 @@ pytest tests/test_api.py
    ```bash
    gunicorn -w 4 -b 0.0.0.0:5000 run:app
    ```
-
-### Docker Deployment
-
-Create a `Dockerfile`:
-
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 5000
-
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "run:app"]
-```
 
 ## 🤝 Contributing
 
@@ -321,4 +397,4 @@ If you encounter any issues or have questions:
 
 ---
 
-**Built with ❤️ using Flask, Bootstrap, and modern web technologies.**
+**Built with ❤️ using Flask, Bootstrap, Docker, and modern web technologies.**
