@@ -1,10 +1,11 @@
 """
-File cấu hình chính cho Flask. Tối giản, dễ kiểm soát trong mọi môi trường.
-Sử dụng biến môi trường hoặc giá trị mặc định nếu thiếu.
+File cấu hình chính cho Flask.
+Khi dùng Docker: biến môi trường được set trong docker-compose.yml
+Khi chạy manual: có thể dùng file .env (không bắt buộc)
 """
 import os
 from dotenv import load_dotenv
-load_dotenv()  # Đọc .env nếu có
+load_dotenv()  # Đọc .env nếu có (chỉ cần khi chạy manual, không dùng Docker)
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production') # Khoá bảo mật session

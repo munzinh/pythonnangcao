@@ -87,93 +87,25 @@ docker-compose logs db
 
 ---
 
-## 🛠️ Cài đặt thủ công (Không dùng Docker)
+## 🛠️ Cài đặt thủ công (Không dùng Docker - Tùy chọn)
 
-### Prerequisites
-
-- Python 3.8 or higher
-- pip (Python package installer)
-- MySQL (nếu dùng MySQL thay vì SQLite)
-
-### Step 1: Clone the Repository
+> **Lưu ý:** Đồ án này được tối ưu cho Docker. Nếu muốn chạy manual, bạn cần:
+> - Python 3.8+, pip
+> - MySQL (nếu dùng MySQL) hoặc SQLite
+> - Tạo file `.env` với `DATABASE_URI` và `SECRET_KEY`
 
 ```bash
-git clone <repository-url>
-cd TaskMaster
-```
-
-### Step 2: Create Virtual Environment
-
-```bash
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-```
-
-### Step 3: Install Dependencies
-
-```bash
+# Cài đặt dependencies
 pip install -r requirements.txt
-```
 
-### Step 4: Set Environment Variables
+# Tạo file .env (nếu chưa có)
+# DATABASE_URI=sqlite:///todo.db  (hoặc MySQL URI)
+# SECRET_KEY=your-secret-key
 
-Create a `.env` file in the project root:
-
-```env
-# Flask Configuration
-FLASK_ENV=development
-FLASK_DEBUG=True
-SECRET_KEY=your-secret-key-here
-
-# Database Configuration
-# SQLite (default)
-DATABASE_URI=sqlite:///todo.db
-
-# MySQL
-# DATABASE_URI=mysql+pymysql://user:password@localhost/todo_db
-
-# PostgreSQL
-# DATABASE_URI=postgresql://user:password@localhost/todo_db
-```
-
-### Step 5: Initialize Database
-
-```bash
-# Initialize Flask-Migrate (nếu chưa có)
-flask db init
-
-# Create initial migration (nếu chưa có)
-flask db migrate -m "Initial migration"
-
-# Apply migration
+# Chạy migrations và ứng dụng
 flask db upgrade
-```
-
-## 🚀 Running the Application
-
-### Development Mode
-
-```bash
-# Method 1: Using run.py
 python run.py
-
-# Method 2: Using Flask CLI
-flask run
-
-# Method 3: Using environment variables
-export FLASK_APP=run.py
-flask run
 ```
-
-The application will be available at:
-- **Web Interface**: http://localhost:5000/
-- **API Base**: http://localhost:5000/api/
 
 ## 📚 API Documentation
 
@@ -285,39 +217,20 @@ The application supports multiple configuration environments:
 
 ## 🗄️ Database Configuration
 
-### Docker (Default - Khuyến nghị)
+### Docker (Khuyến nghị)
 
-Database MySQL được cấu hình tự động trong Docker. Không cần cấu hình thêm.
+MySQL được cấu hình tự động trong Docker:
+- **Host**: `db` (tên service trong docker-compose)
+- **Port**: `3306` (trong container)
+- **Database**: `taskmaster_db`
+- **User**: `todo_user`
+- **Password**: `todo_password`
 
-### MySQL (Manual Setup)
+Không cần cấu hình thêm, tất cả đã được set trong `docker-compose.yml`.
 
-For MySQL, install the required driver and update your configuration:
+### Manual Setup (Tùy chọn)
 
-```bash
-pip install PyMySQL
-```
-
-Update your `.env` file:
-```env
-DATABASE_URI=mysql+pymysql://username:password@localhost/todo_db
-```
-
-### SQLite (Manual Setup)
-
-The application uses SQLite by default when not using Docker, which requires no additional setup.
-
-### PostgreSQL (Manual Setup)
-
-For PostgreSQL, install the required driver:
-
-```bash
-pip install psycopg2-binary
-```
-
-Update your `.env` file:
-```env
-DATABASE_URI=postgresql://username:password@localhost/todo_db
-```
+Nếu chạy không dùng Docker, có thể dùng SQLite (mặc định) hoặc MySQL. Xem phần "Cài đặt thủ công" ở trên.
 
 ## 🧪 Testing
 
@@ -336,34 +249,18 @@ pytest tests/test_api.py
 
 ## 📦 Deployment
 
-### Docker Deployment (Production)
+### Docker Deployment (Khuyến nghị)
 
 ```bash
-# Build production image
-docker-compose -f docker-compose.yml build
+# Build và chạy production
+docker-compose up -d --build
 
-# Run in production mode
-docker-compose up -d
+# Xem logs
+docker-compose logs -f
+
+# Dừng
+docker-compose down
 ```
-
-### Manual Production Deployment
-
-1. **Set Environment Variables**:
-   ```bash
-   export FLASK_ENV=production
-   export SECRET_KEY=your-production-secret-key
-   export DATABASE_URI=your-production-database-url
-   ```
-
-2. **Install Production Dependencies**:
-   ```bash
-   pip install gunicorn
-   ```
-
-3. **Run with Gunicorn**:
-   ```bash
-   gunicorn -w 4 -b 0.0.0.0:5000 run:app
-   ```
 
 ## 🤝 Contributing
 
